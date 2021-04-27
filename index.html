@@ -87,9 +87,9 @@
             var positionY = Math.floor(Math.random() * $(window).height() - 50);
 
             if (Math.random() < 0.5) {
-                $('body').append('<div class="tile kym" data-id="kym" style="left: ' + positionX + 'px; top: ' + positionY + 'px;"></div>');
+                $('#app').append('<div class="tile kym" data-id="kym" style="left: ' + positionX + 'px; top: ' + positionY + 'px;"></div>');
             } else {
-                $('body').append('<div class="tile chi" data-id="chi" style="left: ' + positionX + 'px; top: ' + positionY + 'px;"></div>');
+                $('#app').append('<div class="tile chi" data-id="chi" style="left: ' + positionX + 'px; top: ' + positionY + 'px;"></div>');
             }
         }
 
