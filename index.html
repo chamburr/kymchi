@@ -1,0 +1,175 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kymchi Land</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css"></link>
+    <style>
+        #tutorial {
+            text-align: center;
+        }
+
+        #scoreboard {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            padding: 10px 20px;
+            background-color: white;
+            border: 2px solid black;
+            z-index: 1000;
+        }
+
+        .tile {
+            position: fixed;
+        }
+
+        .clicked::after {
+            background-color: grey !important;
+        }
+
+        .success::after {
+            background-color: lime !important;
+        }
+
+        .fail::after {
+            background-color: crimson !important;
+        }
+
+        .kym::after {
+            height: 100px;
+            width: 100px;
+            text-align: center;
+            font-size: 3em;
+            line-height: 100px;
+            content: 'kym';
+            position: fixed;
+            background-color: white;
+            border: 2px solid black;
+        }
+
+        .chi::after {
+            height: 100px;
+            width: 100px;
+            text-align: center;
+            font-size: 3em;
+            line-height: 100px;
+            content: 'chi';
+            position: fixed;
+            background-color: white;
+            border: 2px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div id="tutorial">
+            <h1>Welcome to Kymchi Land!</h1>
+            <p>There's no Kymchi yet... But you can create some.</p>
+            <p>Click 'kym' and 'chi' to create a Kymchi!</p>
+            <p>Create as many Kymchis as you can. :)</p>
+            <button onclick="start()">Start</button>
+        </div>
+        <div id="scoreboard" style="display: none;">
+            Score: <span id="score">0</span>
+        </div>
+    </div>
+
+    <script>
+        var score = 0;
+        var map = { 67: false, 75: false };
+
+        function makeTile() {
+            var positionX = Math.floor(Math.random() * $(window).width() - 50);
+            var positionY = Math.floor(Math.random() * $(window).height() - 50);
+
+            if (Math.random() < 0.5) {
+                $('body').append('<div class="tile kym" data-id="kym" style="left: ' + positionX + 'px; top: ' + positionY + 'px;"></div>');
+            } else {
+                $('body').append('<div class="tile chi" data-id="chi" style="left: ' + positionX + 'px; top: ' + positionY + 'px;"></div>');
+            }
+        }
+
+        function updateScore(amount) {
+            if (amount > 0 && score % 100 > (score + amount) % 100) {
+                var milestone = score + amount - (score + amount) % 100;
+                toastr.info('GG.COM! You have hit ' + milestone + ' score!')
+            }
+
+            score += amount;
+            $('#score').text(score);
+        }
+
+        function start() {
+            $('#tutorial').remove();
+            $('#scoreboard').show();
+
+            $(document).on('click', '.tile', function (event) {
+                event.stopPropagation();
+
+                if ($('.clicked').length == 0) {
+                    $(this).addClass('clicked');
+                    return
+                }
+
+                if ($(this).data('id') != $('.clicked').data('id')) {
+                    $(this).addClass('success');
+                    $('.clicked').addClass('success');
+                    $('.clicked').removeClass('.clicked');
+                    updateScore(5);
+                } else {
+                    $(this).addClass('fail');
+                    $('.clicked').addClass('fail');
+                    $('.clicked').removeClass('.clicked');
+                    updateScore(-2);
+                }
+
+                var element = this;
+                window.setTimeout(function () {
+                    $(element).remove();
+                    $('.clicked').remove();
+                }, 500);
+            });
+
+            $(document).keydown(function (event) {
+                if (event.keyCode in map) {
+                    map[event.keyCode] = true;
+                    if (map[67] && map[75]) {
+                        updateScore(10);
+                    }
+                }
+            });
+
+            $(document).keyup(function (event) {
+                if (event.keyCode in map) {
+                    map[event.keyCode] = false;
+                }
+            });
+
+            window.setTimeout(function () {
+                $(document).on('click', function () {
+                    updateScore(-2);
+                });
+            });
+
+            window.setInterval(function () {
+                $('.tile').each(function () {
+                    var positionX = Math.floor(Math.random() * $(window).width() - 50);
+                    var positionY = Math.floor(Math.random() * $(window).height() - 50);
+                    $(this).animate({ left: positionX, top: positionY }, 1000)
+                });
+            }, 1100);
+
+            window.setInterval(function () {
+                if ($('.tile').length < 25) {
+                    makeTile();
+                }
+            }, 500);
+        }
+    </script>
+</body>
+
+</html>
